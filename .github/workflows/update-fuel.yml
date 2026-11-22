@@ -1,0 +1,50 @@
+name: Gunluk Akaryakit Fiyatlari
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch: 
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Opet Guncel Fiyatlari Cek ve Kaydet
+        run: |
+          node -e '
+            const fs = require("fs");
+            fetch("https://api.opet.com.tr/api/fuelprices/prices?ProvinceCode=34&IncludeAllProducts=true")
+              .then(r => r.json())
+              .then(list => {
+                const items = Array.isArray(list) ? list[0]?.prices || [] : [];
+                const findPrice = (kw) => {
+                  const found = items.find(p => (p.productName || "").toLowerCase().includes(kw));
+                  return found ? Number(found.amount) : 0;
+                };
+                const data = {
+                  updatedAt: new Date().toISOString().slice(0, 10),
+                  currency: "TRY",
+                  source: "Opet Istanbul",
+                  prices: {
+                    gasoline: findPrice("kurşunsuz") || findPrice("benzin") || 44.15,
+                    diesel: findPrice("motorin") || 44.50,
+                    lpg: findPrice("otogaz") || findPrice("lpg") || 25.80
+                  }
+                };
+                fs.writeFileSync("fuel-prices.json", JSON.stringify(data, null, 2));
+                console.log("Guncellendi:", data);
+              })
+              .catch(err => {
+                console.error("Hata:", err);
+                process.exit(1);
+              });
+          '
+
+      - name: JSON Dosyasini Repoya Kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fuel-prices.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: gunluk akaryakit fiyatlari" && git push)
