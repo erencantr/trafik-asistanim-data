@@ -1,0 +1,19 @@
+{
+  "updatedAt": "2026-11-22",
+  "currency": "TRY",
+  "fixedTolls": [
+    { "id": "avrasya", "name": "Avrasya Tüneli", "keywords": ["avrasya"], "fee": 225 },
+    { "id": "bosphorus", "name": "15 Temmuz / FSM Köprüsü", "keywords": ["15 temmuz", "şehitler köprüsü", "fatih sultan mehmet", "fsm"], "fee": 47 },
+    { "id": "yss", "name": "Yavuz Sultan Selim Köprüsü", "keywords": ["yavuz sultan selim"], "fee": 95 },
+    { "id": "osmangazi", "name": "Osmangazi Köprüsü", "keywords": ["osmangazi"], "fee": 795 },
+    { "id": "canakkale", "name": "1915 Çanakkale Köprüsü", "keywords": ["1915 çanakkale", "çanakkale köprüsü"], "fee": 790 }
+  ],
+  "highwayPerKm": [
+    { "id": "o7", "name": "Kuzey Marmara Otoyolu", "keywords": ["o-7", "kuzey marmara"], "ratePerKm": 4.2 },
+    { "id": "o5", "name": "İstanbul - İzmir Otoyolu", "keywords": ["o-5", "gebze - orhangazi", "izmir otoyolu"], "ratePerKm": 4.8 },
+    { "id": "o21", "name": "Ankara - Niğde Otoyolu", "keywords": ["o-21", "ankara - niğde", "niğde otoyolu"], "ratePerKm": 3.6 },
+    { "id": "o33", "name": "Menemen - Aliağa - Çandarlı", "keywords": ["o-33", "çandarlı"], "ratePerKm": 3.5 },
+    { "id": "o31", "name": "Aydın - Denizli Otoyolu", "keywords": ["o-31", "aydın - denizli"], "ratePerKm": 3.8 },
+    { "id": "kgm", "name": "KGM Otoyolu", "keywords": ["o-4", "o-3", "o-52", "o-51", "o-53", "anadolu otoyolu", "avrupa otoyolu", "otoyol"], "ratePerKm": 1.45 }
+  ]
+}
