@@ -1,0 +1,10 @@
+{
+  "updatedAt": "2026-11-22",
+  "currency": "TRY",
+  "source": "Opet Istanbul",
+  "prices": {
+    "gasoline": 68.16,
+    "diesel": 88.65,
+    "lpg": 25.8
+  }
+}
