@@ -3,7 +3,7 @@ name: Gunluk Akaryakit Fiyatlari
 on:
   schedule:
     - cron: '0 6 * * *'
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   update:
@@ -11,35 +11,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Opet Guncel Fiyatlari Cek ve Kaydet
+      - name: Guncel Fiyatlari Cek ve Kaydet
         run: |
           node -e '
             const fs = require("fs");
-            fetch("https://api.opet.com.tr/api/fuelprices/prices?ProvinceCode=34&IncludeAllProducts=true")
-              .then(r => r.json())
-              .then(list => {
-                const items = Array.isArray(list) ? list[0]?.prices || [] : [];
-                const findPrice = (kw) => {
+
+            async function run() {
+              let gasoline = 0;
+              let diesel = 0;
+              let lpg = 0;
+
+              // 1. Benzin ve Motorin (Opet Istanbul Anadolu - Il Kodu: 34)
+              try {
+                const opetRes = await fetch("https://api.opet.com.tr/api/fuelprices/prices?ProvinceCode=34&IncludeAllProducts=true");
+                const opetList = await opetRes.json();
+                const items = Array.isArray(opetList) ? opetList[0]?.prices || [] : [];
+                const findOpet = (kw) => {
                   const found = items.find(p => (p.productName || "").toLowerCase().includes(kw));
                   return found ? Number(found.amount) : 0;
                 };
-                const data = {
-                  updatedAt: new Date().toISOString().slice(0, 10),
-                  currency: "TRY",
-                  source: "Opet Istanbul",
-                  prices: {
-                    gasoline: findPrice("kurşunsuz") || findPrice("benzin") || 44.15,
-                    diesel: findPrice("motorin") || 44.50,
-                    lpg: findPrice("otogaz") || findPrice("lpg") || 25.80
-                  }
-                };
-                fs.writeFileSync("fuel-prices.json", JSON.stringify(data, null, 2));
-                console.log("Guncellendi:", data);
-              })
-              .catch(err => {
-                console.error("Hata:", err);
-                process.exit(1);
-              });
+                gasoline = findOpet("kurşunsuz") || findOpet("benzin");
+                diesel = findOpet("motorin");
+              } catch (e) {
+                console.warn("Opet hatasi:", e.message);
+              }
+
+              // 2. LPG / Otogaz (Petrol Ofisi Istanbul)
+              try {
+                const poRes = await fetch("https://www.petrolofisi.com.tr/Fuel/Search?template=1&cityId=34");
+                const poHtml = await poRes.text();
+                const lpgMatch = poHtml.match(/PO\/Gaz[^0-9]*([0-9]+[.,][0-9]+)/i) || poHtml.match(/Otogaz[^0-9]*([0-9]+[.,][0-9]+)/i);
+                if (lpgMatch) {
+                  lpg = Number(lpgMatch[1].replace(",", "."));
+                }
+              } catch (e) {
+                console.warn("LPG hatasi:", e.message);
+              }
+
+              const data = {
+                updatedAt: new Date().toISOString().slice(0, 10),
+                currency: "TRY",
+                source: "Opet & PO Istanbul",
+                prices: {
+                  gasoline: gasoline || 44.15,
+                  diesel: diesel || 44.50,
+                  lpg: lpg || 26.49,
+                  electric: 8.90
+                }
+              };
+
+              fs.writeFileSync("fuel-prices.json", JSON.stringify(data, null, 2));
+              console.log("Guncellendi:", data);
+            }
+
+            run().catch(err => {
+              console.error(err);
+              process.exit(1);
+            });
           '
 
       - name: JSON Dosyasini Repoya Kaydet
