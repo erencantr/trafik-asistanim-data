@@ -36,27 +36,32 @@ jobs:
                 console.warn("Opet hatasi:", e.message);
               }
 
-              // 2. LPG / Otogaz (Petrol Ofisi Istanbul)
+              // 2. LPG / Otogaz (Aygaz Istanbul Anadolu)
               try {
-                const poRes = await fetch("https://www.petrolofisi.com.tr/Fuel/Search?template=1&cityId=34");
-                const poHtml = await poRes.text();
-                const lpgMatch = poHtml.match(/PO\/Gaz[^0-9]*([0-9]+[.,][0-9]+)/i) || poHtml.match(/Otogaz[^0-9]*([0-9]+[.,][0-9]+)/i);
-                if (lpgMatch) {
-                  lpg = Number(lpgMatch[1].replace(",", "."));
+                const aygazRes = await fetch("https://www.aygaz.com.tr/otogaz-fiyatlari", {
+                  headers: { "User-Agent": "Mozilla/5.0" }
+                });
+                const html = await aygazRes.text();
+                const istBlock = html.match(/İSTANBUL[\s\S]{0,600}?([3-5][0-9][.,][0-9]{2})/i);
+                if (istBlock) {
+                  lpg = Number(istBlock[1].replace(",", "."));
                 }
               } catch (e) {
-                console.warn("LPG hatasi:", e.message);
+                console.warn("Aygaz hatasi:", e.message);
               }
+
+              // Aygaz HTML degisirse bile benzinin ~%54 oraninda gercekci baz fiyat hesapla
+              const fallbackLpg = gasoline ? Number((gasoline * 0.54).toFixed(2)) : 36.80;
 
               const data = {
                 updatedAt: new Date().toISOString().slice(0, 10),
                 currency: "TRY",
-                source: "Opet & PO Istanbul",
+                source: "Opet & Aygaz Istanbul",
                 prices: {
-                  gasoline: gasoline || 44.15,
-                  diesel: diesel || 44.50,
-                  lpg: lpg || 26.49,
-                  electric: 8.90
+                  gasoline: gasoline || 68.16,
+                  diesel: diesel || 88.65,
+                  lpg: lpg || fallbackLpg,
+                  electric: 9.45
                 }
               };
 
