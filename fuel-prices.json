@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-11-23",
+  "updatedAt": "2026-11-24",
   "currency": "TRY",
   "source": "Opet & Aygaz Istanbul",
   "prices": {
-    "gasoline": 68.16,
-    "diesel": 88.65,
-    "lpg": 49.76,
+    "gasoline": 68.28,
+    "diesel": 88.81,
+    "lpg": 49.84,
     "electric": 9.45
   }
 }
